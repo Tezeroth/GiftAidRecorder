@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Button Counter with Table</title>
+
+    <style>
+        
+        
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(90deg, black, green);
+            background-size: 400% 400%;
+            animation: gradientAnimation 20s ease infinite;
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .buttoncontainer {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            margin: 10px;
+            padding: 8px;
+        }
+
+        button {
+            background-color: rgb(249, 252, 249);
+            color: rgb(14, 0, 0);
+            margin: 40px;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bolder;
+            size: 20vh;
+            margin-bottom: 40px;
+        }
+
+        button#not {
+            background-color: rgb(109, 32, 172);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            padding: auto;
+            max-width: 80vw;
+            margin-top: 5vh;
+            color: black;
+            background-color: wheat;
+          
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+            font-size: larger;
+            text-align: center;
+        }
+
+        #logo {
+            width: 30vw;
+            height: 20vh;
+            display: block;
+            margin: 0 auto;
+        }
+
+        #fullscreen-button {
+        display: flex;
+        padding: 5px;
+        background-color: rgb(12, 99, 2);
+        font-size: 12px;
+        align-self: flex-start;
+        margin-left: 10vw;
+        } 
+        
+        #logo {
+            
+            margin-top: 4vh;
+            margin-bottom: 4vh;
+        }
+
+    </style>
+</head>
+
+
+
+<body>
+    <audio id="pickupCoinSound" src="./sound/pickupCoin.wav" preload="auto"></audio>
+    <audio id="hitHurtSound" src="./sound/hitHurt.wav" preload="auto"></audio>
+    
+    <img id="logo" src="images/OXFAM.webp">
+    <h1 style="color: azure; text-decoration: double;">Gift Aid Counter</h1>
+    <div id="buttoncontainer">
+        <button id="giftAid" onclick="incrementCounter('giftAid'); playSound('pickupCoinSound')">Gift Aid</button>
+        <button id="not" onclick="incrementCounter('not'); playSound('hitHurtSound')">Not Gift Aid</button>
+    </div>
+
+    <!-- Added marquee text -->
+    <marquee style="background-color: black; color: rgb(243, 0, 0);font-weight: bolder;" behavior="scroll" direction="left" scrollamount="10">
+        <p>PLEASE RECORD GIFT AID SALES: Help us analyze data so that we can increase gift aid sales!</p>
+    </marquee>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Gift Aided</th>
+                <th>Not Gift Aided</th>
+                <th>Date</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody"></tbody>
+    </table>
+    <script>
+
+
+
+
+    var isFullscreen = false;
+
+function toggleFullscreen() {
+    if (isFullscreen) {
+        document.exitFullscreen();
+    } else {
+        document.documentElement.requestFullscreen();
+    }
+    isFullscreen = !isFullscreen;
+}
+
+var fullscreenButton = document.getElementById("fullscreen-button");
+fullscreenButton.addEventListener("click", toggleFullscreen);
+
+
+
+
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            sound.play();
+        }
+        
+        function incrementCounter(buttonType) {
+            const currentDate = new Date().toLocaleDateString(); 
+            let data = JSON.parse(localStorage.getItem('clickData')) || {};
+
+            if (!data[currentDate]) {
+                data[currentDate] = { 'giftAid': 0, 'not': 0 };
+            }
+
+            data[currentDate][buttonType]++;
+            localStorage.setItem('clickData', JSON.stringify(data));
+
+            updateTable();
+        }
+
+        function updateTable() {
+            const data = JSON.parse(localStorage.getItem('clickData')) || {};
+
+            const tableBody = document.getElementById('dataTableBody');
+            tableBody.innerHTML = '';
+
+            for (const date in data) {
+                const { giftAid, not } = data[date];
+                const total = giftAid + not;
+                const percentage = total > 0 ? ((giftAid / total) * 100).toFixed(2) : 0;
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `<td>${giftAid}</td><td>${not}</td><td>${date}</td><td>${percentage}%</td>`;
+                tableBody.appendChild(newRow);
+                data[date].percentage = percentage;
+            }
+
+            localStorage.setItem('clickData', JSON.stringify(data));
+        }
+
+    </script>
+    <p style="color: azure; text-align: center;">Data is stored in your browser History. If you clear your browser data, the data will be lost.</p>
+    <button id="fullscreen-button" onclick="toggleFullscreen()">Toggle Fullscreen</button>
+</body>
+</html>
