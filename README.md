@@ -1,4 +1,4 @@
-# GiftAidRecorder
+# Oxfam Gift Aid Recorder
 
 https://tezeroth.github.io/GiftAidRecorder/
 
